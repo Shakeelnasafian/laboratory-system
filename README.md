@@ -1,59 +1,164 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laboratory Information System (LIS)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A multi-tenant Laboratory Information System built for small diagnostic labs in Pakistan. Manages patients, test orders, results, billing, and PDF report generation.
 
-## About Laravel
+## Tech Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Backend:** Laravel 12, PHP 8.2+
+- **Frontend:** Livewire 4, Alpine.js (via Livewire), Tailwind CSS
+- **Database:** MySQL
+- **Packages:** Spatie Laravel Permission, barryvdh/laravel-dompdf, Laravel Breeze
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Super Admin
 
-## Learning Laravel
+- Manage multiple labs (create, edit, activate/deactivate)
+- Each lab gets its own isolated data via `lab_id` multi-tenancy
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Lab Admin
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Full access to all modules below
+- Staff user management (create, edit, toggle active, assign roles)
+- Test category and test catalog management
+- Lab settings (name, contact info, report header/footer)
 
-## Laravel Sponsors
+### Lab Staff
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- **Receptionist / Lab Incharge:** Register patients, create orders, manage invoices
+- **Technician:** Enter and verify test results
+- **Lab Incharge:** All of the above
 
-### Premium Partners
+### Core Modules
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- **Patients** — Register, search, filter by gender/status, view history
+- **Orders** — Step-by-step order creation (select patient → add tests → set payment), status workflow (pending → sample collected → processing → completed)
+- **Results** — Enter test results with value, unit, flag (normal/high/low/critical), verify results
+- **Billing / Invoices** — Invoice summary with paid/outstanding amounts
+- **PDF Reports** — Professional lab report with header, patient info, results table, doctor signatures, footer
 
-## Contributing
+## Roles
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+| Role          | Access                                    |
+| ------------- | ----------------------------------------- |
+| `superadmin`  | Admin panel — manage all labs             |
+| `lab_admin`   | Full lab access including settings/staff  |
+| `lab_incharge`| Patients, orders, results, billing        |
+| `receptionist`| Patients, orders, billing                 |
+| `technician`  | Results entry and verification            |
 
-## Code of Conduct
+## Setup
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Requirements
 
-## Security Vulnerabilities
+- PHP 8.2+
+- MySQL
+- Node.js + npm
+- Composer
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Installation
+
+```bash
+git clone <repo-url>
+cd Laboratory
+
+composer install
+npm install
+
+cp .env.example .env
+php artisan key:generate
+```
+
+Configure your `.env`:
+
+```env
+DB_DATABASE=lab_system
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Run migrations and seed:
+
+```bash
+php artisan migrate
+php artisan db:seed --class=RolesAndPermissionsSeeder
+```
+
+Build assets:
+
+```bash
+npm run build
+```
+
+Start the server:
+
+```bash
+php artisan serve
+```
+
+### Development (hot reload)
+
+```bash
+npm run dev
+# In a separate terminal:
+php artisan serve
+```
+
+## Default Credentials
+
+| Role        | Email               | Password    |
+| ----------- | ------------------- | ----------- |
+| Super Admin | admin@labsystem.pk  | admin@12345 |
+
+After login as super admin, create a lab and assign a `lab_admin` user via `/admin/labs/create`.
+
+## URL Structure
+
+```text
+/login                          Login page
+/admin/dashboard                Super admin dashboard
+/admin/labs                     Labs list
+/admin/labs/create              Create new lab
+
+/lab/dashboard                  Lab dashboard
+/lab/patients                   Patient list
+/lab/patients/create            Register patient
+/lab/orders                     Orders list
+/lab/orders/create              New order
+/lab/orders/{order}             Order detail + status update
+/lab/orders/{order}/report      PDF report (opens in new tab)
+/lab/results                    Results entry
+/lab/invoices                   Billing summary
+/lab/test-categories            Test categories (lab_admin)
+/lab/tests                      Test catalog (lab_admin)
+/lab/users                      Staff management (lab_admin)
+/lab/settings                   Lab settings (lab_admin)
+```
+
+## Multi-tenancy
+
+Login-based multi-tenancy (no subdomains). Every model uses a `lab_id` column. The `BelongsToLab` trait applies a global Eloquent scope that automatically filters all queries to the authenticated user's lab. There is no way for one lab's users to see another lab's data.
+
+## Project Structure
+
+```text
+app/
+  Http/Controllers/ReportController.php   PDF generation
+  Livewire/Admin/                         Super admin components
+  Livewire/Lab/                           Lab user components
+  Models/                                 Eloquent models
+  Traits/BelongsToLab.php                 Multi-tenancy scope trait
+database/
+  migrations/                             All table migrations
+  seeders/RolesAndPermissionsSeeder.php   Roles + super admin user
+resources/
+  views/layouts/lab.blade.php             Lab sidebar layout
+  views/layouts/admin.blade.php           Admin sidebar layout
+  views/livewire/                         All Livewire blade views
+  views/reports/order.blade.php           PDF report template
+routes/web.php                            All application routes
+```
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT
