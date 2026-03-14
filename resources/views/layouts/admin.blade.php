@@ -20,62 +20,13 @@
         @click="$store.adminSidebar.closeMenu()"
     ></div>
 
-    @persist('admin-sidebar')
-    <aside
-        class="fixed inset-y-0 left-0 z-40 flex flex-col bg-gray-900 text-white shadow-2xl transition-all duration-300 ease-out lg:static lg:translate-x-0 lg:shadow-none"
-        :class="[
-            $store.adminSidebar.open || $store.adminSidebar.isDesktop ? 'translate-x-0' : '-translate-x-full',
-            $store.adminSidebar.mini && $store.adminSidebar.isDesktop ? 'w-[5.5rem]' : 'w-72'
-        ]"
-    >
-        <div
-            class="flex items-center border-b border-gray-800"
-            :class="$store.adminSidebar.mini && $store.adminSidebar.isDesktop ? 'justify-center px-3 py-5' : 'gap-3 px-6 py-5'"
-        >
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-500 text-base font-bold">S</div>
-            <div x-show="!$store.adminSidebar.mini || !$store.adminSidebar.isDesktop" x-transition.opacity.duration.150ms>
-                <p class="text-sm font-semibold">Lab System</p>
-                <p class="text-xs text-gray-400">Super Admin</p>
-            </div>
-        </div>
-
-        <div class="flex items-center justify-between border-b border-gray-800 px-3 py-2" x-show="!$store.adminSidebar.mini || !$store.adminSidebar.isDesktop">
-            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">Navigation</p>
-            <button
-                type="button"
-                class="rounded-lg border border-gray-700 px-2 py-1 text-xs text-gray-300 transition hover:bg-gray-800 hover:text-white lg:hidden"
-                @click="$store.adminSidebar.closeMenu()"
-            >
-                Close
-            </button>
-        </div>
-
-        <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-            <x-admin-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
-                <x-slot name="icon"><x-sidebar-icon name="dashboard" /></x-slot> Dashboard
-            </x-admin-nav-link>
-            <x-admin-nav-link :href="route('admin.labs.index')" :active="request()->routeIs('admin.labs*')">
-                <x-slot name="icon"><x-sidebar-icon name="labs" /></x-slot> Manage Labs
-            </x-admin-nav-link>
-            <x-admin-nav-link :href="route('admin.changelog')" :active="request()->routeIs('admin.changelog')">
-                <x-slot name="icon"><x-sidebar-icon name="changelog" /></x-slot> Change Log
-            </x-admin-nav-link>
-        </nav>
-
-        <div class="border-t border-gray-800 px-4 py-3">
-            <div class="flex items-center gap-3" :class="$store.adminSidebar.mini && $store.adminSidebar.isDesktop ? 'justify-center' : 'justify-between'">
-                <div x-show="!$store.adminSidebar.mini || !$store.adminSidebar.isDesktop" x-transition.opacity.duration.150ms>
-                    <p class="text-sm font-medium">{{ auth()->user()->name }}</p>
-                    <p class="text-xs text-gray-400">Super Admin</p>
-                </div>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button class="text-xs text-gray-400 transition hover:text-white" title="Logout">Logout</button>
-                </form>
-            </div>
-        </div>
-    </aside>
-    @endpersist
+    @if (app()->runningUnitTests())
+        @include('layouts.partials.admin-sidebar')
+    @else
+        @persist('admin-sidebar')
+            @include('layouts.partials.admin-sidebar')
+        @endpersist
+    @endif
 
     <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
         <header class="border-b border-gray-200 bg-white shadow-sm">

@@ -27,8 +27,8 @@ class RejectedIndex extends Component
     {
         abort_unless(auth()->user()->canCollectSamples(), 403);
 
-        $sample = Sample::with('orderItem.test')->findOrFail($sampleId);
-        $this->sampleId = $sampleId;
+        $sample = $this->resolveSample($sampleId, ['orderItem.test']);
+        $this->sampleId = $sample->id;
         $this->sample_type = $sample->sample_type ?: ($sample->orderItem->test->sample_type ?? 'General');
         $this->container = $sample->container ?? '';
         $this->showRecollectModal = true;
@@ -43,7 +43,7 @@ class RejectedIndex extends Component
             'container' => 'nullable|string|max:255',
         ]);
 
-        $sample = Sample::with('orderItem')->findOrFail($this->sampleId);
+        $sample = $this->resolveSample($this->sampleId, ['orderItem']);
 
         try {
             app(LabWorkflowService::class)->collectSample($sample->orderItem, auth()->user(), [
@@ -75,5 +75,12 @@ class RejectedIndex extends Component
 
         return view('livewire.lab.samples.rejected', compact('samples'))
             ->layout('layouts.lab', ['title' => 'Rejected Samples']);
+    }
+
+    protected function resolveSample(?int $sampleId, array $relations = []): Sample
+    {
+        return Sample::with($relations)
+            ->where('lab_id', auth()->user()->lab_id)
+            ->findOrFail($sampleId);
     }
 }

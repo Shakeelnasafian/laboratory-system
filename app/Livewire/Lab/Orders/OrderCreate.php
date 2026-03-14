@@ -61,16 +61,33 @@ class OrderCreate extends Component
 
     public function selectPatient(int $id): void
     {
-        $this->selectedPatient = Patient::find($id);
-        $this->patient_id = $id;
-        $this->patient_search = $this->selectedPatient->name;
+        $patient = Patient::query()->find($id);
+
+        if (! $patient) {
+            $this->addError('patient_search', 'Selected patient is no longer available.');
+            return;
+        }
+
+        $this->resetValidation('patient_search');
+        $this->selectedPatient = $patient;
+        $this->patient_id = $patient->id;
+        $this->patient_search = $patient->name;
         $this->patientResults = [];
     }
 
     public function addTest(int $testId): void
     {
         if (! isset($this->selectedTests[$testId])) {
-            $test = Test::find($testId);
+            $test = Test::query()
+                ->where('is_active', true)
+                ->find($testId);
+
+            if (! $test) {
+                $this->addError('test_search', 'Selected test is no longer available.');
+                return;
+            }
+
+            $this->resetValidation('test_search');
             $this->selectedTests[$testId] = [
                 'id' => $test->id,
                 'name' => $test->name,
@@ -103,45 +120,82 @@ class OrderCreate extends Component
         $this->validate([
             'patient_id' => 'required|exists:patients,id',
             'selectedTests' => 'required|min:1',
+            'discount' => 'nullable|numeric|min:0',
             'paid_amount' => 'required|numeric|min:0',
-            'payment_method' => 'required',
+            'payment_method' => 'required|string|max:50',
         ]);
 
+        $patient = Patient::query()->find($this->patient_id);
+
+        if (! $patient) {
+            $this->addError('patient_id', 'Selected patient is invalid.');
+            return;
+        }
+
+        $testIds = $this->selectedTestIds();
+        $tests = Test::query()
+            ->where('is_active', true)
+            ->whereIn('id', $testIds)
+            ->get()
+            ->keyBy('id');
+
+        if ($tests->count() !== count($testIds)) {
+            $this->addError('selectedTests', 'One or more selected tests are no longer available.');
+            return;
+        }
+
+        $subtotal = (float) $tests->sum(fn (Test $test) => (float) $test->price);
+        $discount = (float) $this->discount;
+
+        if ($discount > $subtotal) {
+            $this->addError('discount', 'Discount cannot exceed the subtotal.');
+            return;
+        }
+
+        $netAmount = $subtotal - $discount;
+        $paid = (float) $this->paid_amount;
+
+        if ($paid > $netAmount) {
+            $this->addError('paid_amount', 'Paid amount cannot exceed the net total.');
+            return;
+        }
+
         $workflow = app(LabWorkflowService::class);
-        $createdOrder = DB::transaction(function () use ($workflow) {
+        $createdOrder = DB::transaction(function () use ($discount, $netAmount, $paid, $patient, $subtotal, $tests, $workflow) {
             $order = Order::create([
-                'patient_id' => $this->patient_id,
+                'patient_id' => $patient->id,
                 'created_by' => auth()->id(),
                 'status' => Order::STATUS_PENDING,
                 'is_urgent' => $this->is_urgent,
-                'total_amount' => $this->subtotal,
-                'discount' => (float) $this->discount,
-                'net_amount' => $this->netAmount,
+                'total_amount' => $subtotal,
+                'discount' => $discount,
+                'net_amount' => $netAmount,
                 'referred_by' => $this->referred_by,
                 'notes' => $this->notes,
             ]);
 
-            foreach ($this->selectedTests as $testId => $testData) {
+            foreach ($tests as $test) {
                 $item = OrderItem::create([
                     'order_id' => $order->id,
-                    'test_id' => $testId,
-                    'price' => $testData['price'],
+                    'test_id' => $test->id,
+                    'price' => $test->price,
                     'status' => OrderItem::STATUS_PENDING,
                 ]);
 
+                $item->setRelation('order', $order);
+                $item->setRelation('test', $test);
                 $item->update([
                     'due_at' => $workflow->calculateDueAt($item),
                 ]);
             }
 
-            $paid = (float) $this->paid_amount;
-            $balance = $this->netAmount - $paid;
+            $balance = $netAmount - $paid;
             Invoice::create([
                 'lab_id' => auth()->user()->lab_id,
                 'order_id' => $order->id,
-                'subtotal' => $this->subtotal,
-                'discount' => (float) $this->discount,
-                'total' => $this->netAmount,
+                'subtotal' => $subtotal,
+                'discount' => $discount,
+                'total' => $netAmount,
                 'paid_amount' => $paid,
                 'balance' => $balance,
                 'payment_status' => $balance <= 0 ? 'paid' : ($paid > 0 ? 'partial' : 'unpaid'),
@@ -159,5 +213,15 @@ class OrderCreate extends Component
     {
         return view('livewire.lab.orders.create')
             ->layout('layouts.lab', ['title' => 'New Order']);
+    }
+
+    protected function selectedTestIds(): array
+    {
+        return collect(array_keys($this->selectedTests))
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn (int $id) => $id > 0)
+            ->unique()
+            ->values()
+            ->all();
     }
 }
