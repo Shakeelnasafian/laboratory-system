@@ -19,7 +19,7 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow">
         <div class="flex items-center justify-between px-6 py-4 border-b dark:border-gray-700">
             <h2 class="font-semibold text-gray-800 dark:text-white">Recent Labs</h2>
-            <a href="{{ route('admin.labs.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg transition">+ Add Lab</a>
+            <a href="{{ route('admin.labs.create') }}" wire:navigate class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg transition">+ Add Lab</a>
         </div>
         <table class="w-full text-sm">
             <thead class="bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300">

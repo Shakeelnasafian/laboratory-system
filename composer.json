@@ -35,6 +35,15 @@
             "Tests\\": "tests/"
         }
     },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../laravel-permissions-ui",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
     "scripts": {
         "setup": [
             "composer install",
