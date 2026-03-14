@@ -14,9 +14,9 @@
                 @else
                     <span class="px-4 py-2 rounded-lg text-sm bg-yellow-50 text-yellow-800">Release report after all results are verified.</span>
                 @endif
-                <a href="{{ route('lab.samples.collection') }}" class="border px-4 py-2 rounded-lg text-sm">Samples</a>
-                <a href="{{ route('lab.worklists.index') }}" class="border px-4 py-2 rounded-lg text-sm">Worklists</a>
-                <a href="{{ route('lab.results.release') }}" class="border px-4 py-2 rounded-lg text-sm">Release Queue</a>
+                <a href="{{ route('lab.samples.collection') }}" wire:navigate class="border px-4 py-2 rounded-lg text-sm">Samples</a>
+                <a href="{{ route('lab.worklists.index') }}" wire:navigate class="border px-4 py-2 rounded-lg text-sm">Worklists</a>
+                <a href="{{ route('lab.results.release') }}" wire:navigate class="border px-4 py-2 rounded-lg text-sm">Release Queue</a>
             </div>
         </div>
 
@@ -133,6 +133,6 @@
     @endif
 
     <div class="flex justify-start">
-        <a href="{{ route('lab.orders.index') }}" class="text-blue-600 hover:underline text-sm">Back to Orders</a>
+        <a href="{{ route('lab.orders.index') }}" wire:navigate class="text-blue-600 hover:underline text-sm">Back to Orders</a>
     </div>
 </div>

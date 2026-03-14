@@ -8,7 +8,7 @@
                 <option value="critical">Critical Queue</option>
             </select>
         </div>
-        <a href="{{ route('lab.results.index') }}" class="text-sm text-blue-600 hover:underline">Back to result entry</a>
+        <a href="{{ route('lab.results.index') }}" wire:navigate class="text-sm text-blue-600 hover:underline">Back to result entry</a>
     </div>
 
     <div class="space-y-4">
@@ -17,7 +17,7 @@
                 <div class="flex flex-wrap items-start justify-between gap-4">
                     <div>
                         <div class="flex items-center gap-2">
-                            <a href="{{ route('lab.orders.show', $order) }}" class="text-lg font-semibold text-blue-600 hover:underline">{{ $order->order_number }}</a>
+                            <a href="{{ route('lab.orders.show', $order) }}" wire:navigate class="text-lg font-semibold text-blue-600 hover:underline">{{ $order->order_number }}</a>
                             @if($order->critical_item_count > 0)
                                 <span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-700">Critical {{ $order->critical_item_count }}</span>
                             @endif

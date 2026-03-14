@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
+use App\Livewire\ChangelogPage;
 use App\Livewire\Admin\Dashboard as AdminDashboard;
 use App\Livewire\Admin\Labs\LabCreate;
 use App\Livewire\Admin\Labs\LabEdit;
@@ -43,6 +44,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:superadmin'])-
     Route::get('/labs', LabIndex::class)->name('labs.index');
     Route::get('/labs/create', LabCreate::class)->name('labs.create');
     Route::get('/labs/{lab}/edit', LabEdit::class)->name('labs.edit');
+    Route::get('/changelog', ChangelogPage::class)->name('changelog');
 });
 
 Route::prefix('lab')->name('lab.')->middleware(['auth', 'role:lab_admin|lab_incharge|receptionist|technician'])->group(function () {
@@ -70,6 +72,7 @@ Route::prefix('lab')->name('lab.')->middleware(['auth', 'role:lab_admin|lab_inch
     Route::get('/results/release', ResultReleaseIndex::class)->name('results.release');
 
     Route::get('/invoices', InvoiceIndex::class)->name('invoices.index');
+    Route::get('/changelog', ChangelogPage::class)->name('changelog');
 
     Route::get('/settings', LabSettings::class)->name('settings')->middleware('role:lab_admin');
     Route::get('/users', UserIndex::class)->name('users.index')->middleware('role:lab_admin');

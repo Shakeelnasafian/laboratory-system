@@ -8,7 +8,7 @@
                 <option value="inactive">Inactive</option>
             </select>
         </div>
-        <a href="{{ route('admin.labs.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg transition">+ New Lab</a>
+        <a href="{{ route('admin.labs.create') }}" wire:navigate class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg transition">+ New Lab</a>
     </div>
 
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
@@ -41,7 +41,7 @@
                     </td>
                     <td class="px-6 py-3">
                         <div class="flex items-center gap-2">
-                            <a href="{{ route('admin.labs.edit', $lab) }}" class="text-blue-600 hover:underline text-xs">Edit</a>
+                            <a href="{{ route('admin.labs.edit', $lab) }}" wire:navigate class="text-blue-600 hover:underline text-xs">Edit</a>
                             <button wire:click="toggleStatus({{ $lab->id }})"
                                 wire:confirm="Toggle this lab's status?"
                                 class="text-xs {{ $lab->is_active ? 'text-red-500' : 'text-green-500' }} hover:underline">

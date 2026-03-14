@@ -26,7 +26,7 @@
                         @endforeach
                     </div>
                 @endif
-                <p class="text-xs text-gray-400 mt-2">Can't find? <a href="{{ route('lab.patients.create') }}" class="text-blue-600 hover:underline">Register new patient</a></p>
+                <p class="text-xs text-gray-400 mt-2">Can't find? <a href="{{ route('lab.patients.create') }}" wire:navigate class="text-blue-600 hover:underline">Register new patient</a></p>
             </div>
         @endif
     </div>
@@ -132,7 +132,7 @@
 
     {{-- Submit --}}
     <div class="flex justify-end gap-3">
-        <a href="{{ route('lab.orders.index') }}" class="border px-6 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Cancel</a>
+        <a href="{{ route('lab.orders.index') }}" wire:navigate class="border px-6 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Cancel</a>
         <button wire:click="placeOrder"
                 @if(!$patient_id || count($selectedTests) === 0) disabled @endif
                 class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-8 py-2 rounded-lg text-sm font-medium transition">
