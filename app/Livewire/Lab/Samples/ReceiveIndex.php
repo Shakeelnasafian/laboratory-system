@@ -27,7 +27,7 @@ class ReceiveIndex extends Component
         abort_unless(auth()->user()->canReceiveSamples(), 403);
 
         try {
-            app(LabWorkflowService::class)->receiveSample(Sample::findOrFail($sampleId), auth()->user());
+            app(LabWorkflowService::class)->receiveSample($this->resolveSample($sampleId), auth()->user());
         } catch (ValidationException $exception) {
             $this->setErrorBag($exception->validator->errors());
             return;
@@ -40,7 +40,7 @@ class ReceiveIndex extends Component
     {
         abort_unless(auth()->user()->canReceiveSamples(), 403);
 
-        $this->sampleId = $sampleId;
+        $this->sampleId = $this->resolveSample($sampleId)->id;
         $this->rejection_reason = '';
         $this->showRejectModal = true;
     }
@@ -53,7 +53,7 @@ class ReceiveIndex extends Component
             'rejection_reason' => 'required|string|min:3',
         ]);
 
-        app(LabWorkflowService::class)->rejectSample(Sample::findOrFail($this->sampleId), $this->rejection_reason);
+        app(LabWorkflowService::class)->rejectSample($this->resolveSample($this->sampleId), $this->rejection_reason);
 
         $this->reset('showRejectModal', 'sampleId', 'rejection_reason');
         session()->flash('success', 'Sample rejected and sent back for recollection.');
@@ -75,5 +75,12 @@ class ReceiveIndex extends Component
 
         return view('livewire.lab.samples.receive', compact('samples'))
             ->layout('layouts.lab', ['title' => 'Sample Receive']);
+    }
+
+    protected function resolveSample(?int $sampleId): Sample
+    {
+        return Sample::query()
+            ->where('lab_id', auth()->user()->lab_id)
+            ->findOrFail($sampleId);
     }
 }

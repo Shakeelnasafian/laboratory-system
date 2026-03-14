@@ -33,7 +33,7 @@ class ResultIndex extends Component
     {
         abort_unless(auth()->user()->canWorkBench(), 403);
 
-        $item = OrderItem::with(['test', 'result'])->findOrFail($itemId);
+        $item = $this->resolveOrderItem($itemId, ['test', 'result']);
         $this->orderItemId = $item->id;
         $this->unit = $item->result?->unit ?? ($item->test->unit ?? '');
         $this->normal_range = $item->result?->normal_range ?? ($item->test->normal_range ?? '');
@@ -54,7 +54,7 @@ class ResultIndex extends Component
         ]);
 
         try {
-            app(LabWorkflowService::class)->saveResult(OrderItem::findOrFail($this->orderItemId), auth()->user(), [
+            app(LabWorkflowService::class)->saveResult($this->resolveOrderItem($this->orderItemId), auth()->user(), [
                 'value' => $this->value,
                 'unit' => $this->unit,
                 'normal_range' => $this->normal_range,
@@ -75,7 +75,7 @@ class ResultIndex extends Component
         abort_unless(auth()->user()->canVerifyResults(), 403);
 
         try {
-            app(LabWorkflowService::class)->verifyResult(OrderItem::findOrFail($itemId), auth()->user());
+            app(LabWorkflowService::class)->verifyResult($this->resolveOrderItem($itemId), auth()->user());
         } catch (ValidationException $exception) {
             $this->setErrorBag($exception->validator->errors());
             return;
@@ -104,5 +104,12 @@ class ResultIndex extends Component
 
         return view('livewire.lab.results.index', compact('items'))
             ->layout('layouts.lab', ['title' => 'Test Results']);
+    }
+
+    protected function resolveOrderItem(?int $itemId, array $relations = []): OrderItem
+    {
+        return OrderItem::with($relations)
+            ->whereHas('order', fn ($query) => $query->where('lab_id', auth()->user()->lab_id))
+            ->findOrFail($itemId);
     }
 }

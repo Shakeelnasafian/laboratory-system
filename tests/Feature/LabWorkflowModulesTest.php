@@ -4,17 +4,21 @@ namespace Tests\Feature;
 
 use App\Livewire\Lab\Results\ReleaseIndex;
 use App\Livewire\Lab\Results\ResultIndex;
+use App\Livewire\Lab\Orders\OrderCreate;
 use App\Livewire\Lab\Samples\CollectionIndex;
 use App\Livewire\Lab\Samples\ReceiveIndex;
+use App\Livewire\Lab\Samples\RejectedIndex;
 use App\Livewire\Lab\Worklists\WorklistIndex;
 use App\Models\Lab;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Patient;
+use App\Models\Sample;
 use App\Models\Test;
 use App\Models\User;
 use App\Services\LabWorkflowService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -179,6 +183,172 @@ class LabWorkflowModulesTest extends TestCase
         $this->assertSame('draft', $item->result->status);
         $this->assertCount(1, $item->result->revisions);
         $this->assertFalse($item->order->canPrintReport());
+    }
+
+    public function test_order_creation_recomputes_amounts_from_server_side_test_records(): void
+    {
+        $receptionist = $this->createLabUser(User::ROLE_RECEPTIONIST);
+        $patient = Patient::create([
+            'lab_id' => $receptionist->lab_id,
+            'name' => 'Pricing Patient',
+            'phone' => '0500000001',
+            'gender' => 'female',
+            'age' => 28,
+        ]);
+        $test = Test::create([
+            'lab_id' => $receptionist->lab_id,
+            'name' => 'Glucose',
+            'code' => 'GLU',
+            'price' => 500,
+            'sample_type' => 'Serum',
+            'turnaround_hours' => 6,
+            'is_active' => true,
+        ]);
+
+        Livewire::actingAs($receptionist)
+            ->test(OrderCreate::class)
+            ->set('patient_id', $patient->id)
+            ->set('selectedTests', [
+                $test->id => [
+                    'id' => $test->id,
+                    'name' => $test->name,
+                    'price' => 1,
+                    'turnaround_hours' => 1,
+                ],
+            ])
+            ->set('paid_amount', '100')
+            ->set('payment_method', 'cash')
+            ->call('placeOrder')
+            ->assertHasNoErrors();
+
+        $order = Order::with(['items', 'invoice'])->latest('id')->first();
+
+        $this->assertNotNull($order);
+        $this->assertSame('500.00', (string) $order->total_amount);
+        $this->assertSame('500.00', (string) $order->net_amount);
+        $this->assertSame('500.00', (string) $order->items->first()->price);
+        $this->assertSame('500.00', (string) $order->invoice->total);
+        $this->assertSame('100.00', (string) $order->invoice->paid_amount);
+        $this->assertSame('400.00', (string) $order->invoice->balance);
+    }
+
+    public function test_order_creation_rejects_discount_above_server_side_subtotal(): void
+    {
+        $receptionist = $this->createLabUser(User::ROLE_RECEPTIONIST);
+        $patient = Patient::create([
+            'lab_id' => $receptionist->lab_id,
+            'name' => 'Discount Patient',
+            'phone' => '0500000002',
+            'gender' => 'male',
+            'age' => 30,
+        ]);
+        $test = Test::create([
+            'lab_id' => $receptionist->lab_id,
+            'name' => 'Calcium',
+            'code' => 'CA',
+            'price' => 250,
+            'sample_type' => 'Serum',
+            'turnaround_hours' => 4,
+            'is_active' => true,
+        ]);
+
+        Livewire::actingAs($receptionist)
+            ->test(OrderCreate::class)
+            ->set('patient_id', $patient->id)
+            ->set('selectedTests', [
+                $test->id => [
+                    'id' => $test->id,
+                    'name' => $test->name,
+                    'price' => 1,
+                    'turnaround_hours' => 1,
+                ],
+            ])
+            ->set('discount', '999')
+            ->set('paid_amount', '0')
+            ->set('payment_method', 'cash')
+            ->call('placeOrder')
+            ->assertHasErrors(['discount']);
+
+        $this->assertDatabaseCount('orders', 0);
+    }
+
+    public function test_other_lab_users_cannot_load_results_for_a_foreign_order_item(): void
+    {
+        $receptionist = $this->createLabUser(User::ROLE_RECEPTIONIST);
+        $outsider = $this->createLabUser(User::ROLE_TECHNICIAN);
+        $item = $this->createReadyBenchItem($receptionist, $this->createLabUser(User::ROLE_TECHNICIAN, $receptionist->lab));
+
+        try {
+            Livewire::actingAs($outsider)
+                ->test(ResultIndex::class)
+                ->call('openResultEntry', $item->id);
+
+            $this->fail('Expected a model not found exception for a foreign lab order item.');
+        } catch (ModelNotFoundException $exception) {
+            $this->assertTrue(true);
+        }
+    }
+
+    public function test_other_lab_users_cannot_receive_or_recollect_foreign_samples(): void
+    {
+        $receptionist = $this->createLabUser(User::ROLE_RECEPTIONIST);
+        $ownerTechnician = $this->createLabUser(User::ROLE_TECHNICIAN, $receptionist->lab);
+        $outsiderTechnician = $this->createLabUser(User::ROLE_TECHNICIAN);
+        $outsiderReceptionist = $this->createLabUser(User::ROLE_RECEPTIONIST);
+        $item = $this->createOrderItem($receptionist->lab, $receptionist);
+
+        $sample = app(LabWorkflowService::class)->collectSample($item, $receptionist, [
+            'sample_type' => 'Blood',
+            'container' => 'EDTA',
+        ]);
+
+        try {
+            Livewire::actingAs($outsiderTechnician)
+                ->test(ReceiveIndex::class)
+                ->call('receive', $sample->id);
+
+            $this->fail('Expected a model not found exception for a foreign lab sample receive.');
+        } catch (ModelNotFoundException $exception) {
+            $this->assertSame(Sample::STATUS_COLLECTED, $sample->fresh()->status);
+        }
+
+        app(LabWorkflowService::class)->rejectSample($sample->fresh(), 'Insufficient sample');
+
+        try {
+            Livewire::actingAs($outsiderReceptionist)
+                ->test(RejectedIndex::class)
+                ->call('openRecollect', $sample->id);
+
+            $this->fail('Expected a model not found exception for a foreign lab rejected sample.');
+        } catch (ModelNotFoundException $exception) {
+            $this->assertSame(Sample::STATUS_REJECTED, $sample->fresh()->status);
+        }
+
+        $this->assertNotSame($ownerTechnician->lab_id, $outsiderTechnician->lab_id);
+    }
+
+    public function test_other_lab_users_cannot_stream_a_foreign_released_report(): void
+    {
+        $receptionist = $this->createLabUser(User::ROLE_RECEPTIONIST);
+        $technician = $this->createLabUser(User::ROLE_TECHNICIAN, $receptionist->lab);
+        $incharge = $this->createLabUser(User::ROLE_LAB_INCHARGE, $receptionist->lab);
+        $outsider = $this->createLabUser(User::ROLE_LAB_INCHARGE);
+        $item = $this->createReadyBenchItem($receptionist, $technician);
+        $order = $item->order()->first();
+
+        app(LabWorkflowService::class)->saveResult($item, $technician, [
+            'value' => '13.2',
+            'unit' => 'g/dL',
+            'normal_range' => '12-16',
+            'flag' => 'normal',
+            'remarks' => 'Finalized',
+        ]);
+        app(LabWorkflowService::class)->verifyResult($item->fresh(), $incharge);
+        app(LabWorkflowService::class)->releaseOrder($order->fresh('items.result'), $incharge);
+
+        $this->actingAs($outsider)
+            ->get(route('lab.orders.report', $order))
+            ->assertNotFound();
     }
 
     private function createReadyBenchItem(User $receptionist, User $technician): OrderItem

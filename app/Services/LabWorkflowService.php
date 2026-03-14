@@ -266,13 +266,24 @@ class LabWorkflowService
 
     protected function nextAccessionNumber(int $labId): string
     {
-        $date = now()->format('Ymd');
-        $count = Sample::withoutGlobalScope('lab')
-            ->where('lab_id', $labId)
-            ->whereDate('created_at', today())
-            ->count() + 1;
+        $prefix = 'ACC-' . now()->format('Ymd') . '-';
 
-        return 'ACC-' . $date . '-' . str_pad((string) $count, 3, '0', STR_PAD_LEFT);
+        DB::table('labs')
+            ->where('id', $labId)
+            ->lockForUpdate()
+            ->first();
+
+        $lastAccessionNumber = Sample::withoutGlobalScope('lab')
+            ->where('lab_id', $labId)
+            ->where('accession_number', 'like', $prefix . '%')
+            ->orderByDesc('accession_number')
+            ->value('accession_number');
+
+        $nextNumber = $lastAccessionNumber
+            ? ((int) substr($lastAccessionNumber, strrpos($lastAccessionNumber, '-') + 1)) + 1
+            : 1;
+
+        return $prefix . str_pad((string) $nextNumber, 3, '0', STR_PAD_LEFT);
     }
 
     protected function recordRevision(Result $result, User $actor): void

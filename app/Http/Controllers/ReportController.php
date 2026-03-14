@@ -9,6 +9,7 @@ class ReportController extends Controller
 {
     public function orderReport(Order $order)
     {
+        abort_unless(auth()->check() && $order->lab_id === auth()->user()->lab_id, 404);
         abort_unless($order->canPrintReport(), 403, 'Release the report before printing it.');
 
         $order->load([
