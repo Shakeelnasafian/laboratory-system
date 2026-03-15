@@ -41,7 +41,7 @@
             </div>
         </div>
         <div class="flex justify-end pt-2">
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition">
+            <button type="submit" class="app-btn-primary rounded-lg px-6 py-2 text-sm font-medium transition">
                 <span wire:loading.remove>Save Settings</span>
                 <span wire:loading>Saving...</span>
             </button>

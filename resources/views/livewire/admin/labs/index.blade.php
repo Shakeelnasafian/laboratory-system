@@ -35,13 +35,11 @@
                     </td>
                     <td class="px-6 py-3 text-gray-500">{{ $lab->city ?? '—' }}</td>
                     <td class="px-6 py-3">
-                        <span class="px-2 py-1 rounded-full text-xs {{ $lab->is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                            {{ $lab->is_active ? 'Active' : 'Inactive' }}
-                        </span>
+                        <x-status-badge type="signal" :status="$lab->is_active ? 'active' : 'inactive'" />
                     </td>
                     <td class="px-6 py-3">
                         <div class="flex items-center gap-2">
-                            <a href="{{ route('admin.labs.edit', $lab) }}" wire:navigate class="text-blue-600 hover:underline text-xs">Edit</a>
+                            <a href="{{ route('admin.labs.edit', $lab) }}" wire:navigate class="app-link-primary text-xs">Edit</a>
                             <button wire:click="toggleStatus({{ $lab->id }})"
                                 wire:confirm="Toggle this lab's status?"
                                 class="text-xs {{ $lab->is_active ? 'text-red-500' : 'text-green-500' }} hover:underline">

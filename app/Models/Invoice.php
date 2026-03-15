@@ -5,10 +5,21 @@ namespace App\Models;
 use App\Traits\BelongsToLab;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 class Invoice extends Model
 {
     use BelongsToLab;
+
+    public const STATUS_PAID = 'paid';
+    public const STATUS_PARTIAL = 'partial';
+    public const STATUS_UNPAID = 'unpaid';
+
+    public const STATUSES = [
+        self::STATUS_PAID => 'Paid',
+        self::STATUS_PARTIAL => 'Partial',
+        self::STATUS_UNPAID => 'Unpaid',
+    ];
 
     protected $fillable = [
         'lab_id', 'order_id', 'invoice_number', 'subtotal',
@@ -36,10 +47,13 @@ class Invoice extends Model
         static::creating(function ($invoice) {
             if (empty($invoice->invoice_number)) {
                 $date = now()->format('Ymd');
-                $count = static::withoutGlobalScope('lab')
-                    ->where('lab_id', $invoice->lab_id)
-                    ->whereDate('created_at', today())
-                    ->count() + 1;
+                $count = DB::transaction(function () use ($invoice) {
+                    return static::withoutGlobalScope('lab')
+                        ->where('lab_id', $invoice->lab_id)
+                        ->whereDate('created_at', today())
+                        ->lockForUpdate()
+                        ->count() + 1;
+                });
                 $invoice->invoice_number = 'INV-' . $date . '-' . str_pad($count, 3, '0', STR_PAD_LEFT);
             }
         });

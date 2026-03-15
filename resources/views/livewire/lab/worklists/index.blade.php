@@ -11,7 +11,7 @@
         </div>
         <div class="flex flex-col gap-2 sm:flex-row">
             <button wire:click="assignSelectedToMe" class="rounded-lg border px-4 py-2 text-sm">Assign Selected</button>
-            <button wire:click="startSelectedProcessing" class="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">Start Selected</button>
+            <button wire:click="startSelectedProcessing" class="app-btn-primary rounded-lg px-4 py-2 text-sm">Start Selected</button>
         </div>
     </div>
 
@@ -38,7 +38,7 @@
                                 <input type="checkbox" value="{{ $item->id }}" wire:model="selectedItems" class="mt-1 rounded border-gray-300">
                             </td>
                             <td class="px-6 py-4 align-top">
-                                <a href="{{ route('lab.orders.show', $item->order) }}" wire:navigate class="font-medium text-blue-600 hover:underline">{{ $item->order->order_number }}</a>
+                                <a href="{{ route('lab.orders.show', $item->order) }}" wire:navigate class="app-link-primary font-medium">{{ $item->order->order_number }}</a>
                                 @if($item->order->is_urgent)
                                     <div class="mt-1 text-xs font-semibold text-red-600">URGENT</div>
                                 @endif
@@ -62,19 +62,17 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 align-top whitespace-nowrap">
-                                @php($colors = ['sample_collected' => 'blue', 'processing' => 'indigo', 'completed' => 'green', 'pending' => 'yellow'])
-                                @php($color = $colors[$item->status] ?? 'gray')
-                                <span class="inline-flex rounded-full px-2 py-1 text-xs bg-{{ $color }}-100 text-{{ $color }}-700">{{ str_replace('_', ' ', ucfirst($item->status)) }}</span>
+                                <x-status-badge type="order_item" :status="$item->status" />
                             </td>
                             <td class="w-[260px] min-w-[260px] px-6 py-4 align-top">
                                 <textarea wire:model.defer="notes.{{ $item->id }}" rows="2" class="w-full rounded-lg border px-3 py-2 text-sm" placeholder="Bench notes..."></textarea>
-                                <button wire:click="saveNotes({{ $item->id }})" class="mt-2 text-xs text-blue-600 hover:underline">Save note</button>
+                                <button wire:click="saveNotes({{ $item->id }})" class="app-link-primary mt-2 text-xs">Save note</button>
                             </td>
                             <td class="px-6 py-4 align-top whitespace-nowrap text-right">
                                 <div class="flex flex-col items-end gap-2">
                                     <button wire:click="assignToMe({{ $item->id }})" class="rounded-lg border px-3 py-2 text-sm">Assign to me</button>
                                     @if($item->status !== 'processing')
-                                        <button wire:click="startProcessing({{ $item->id }})" class="rounded-lg bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700">Start</button>
+                                        <button wire:click="startProcessing({{ $item->id }})" class="app-btn-primary rounded-lg px-3 py-2 text-sm">Start</button>
                                     @endif
                                 </div>
                             </td>

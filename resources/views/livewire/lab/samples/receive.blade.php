@@ -24,7 +24,7 @@
                         <tr>
                             <td class="px-6 py-4 align-top whitespace-nowrap font-mono text-blue-700">{{ $sample->accession_number }}</td>
                             <td class="px-6 py-4 align-top">
-                                <a href="{{ route('lab.orders.show', $sample->orderItem->order) }}" wire:navigate class="text-blue-600 hover:underline">{{ $sample->orderItem->order->order_number }}</a>
+                                <a href="{{ route('lab.orders.show', $sample->orderItem->order) }}" wire:navigate class="app-link-primary">{{ $sample->orderItem->order->order_number }}</a>
                             </td>
                             <td class="px-6 py-4 align-top">{{ $sample->orderItem->order->patient->name }}</td>
                             <td class="px-6 py-4 align-top text-gray-600">
@@ -37,7 +37,7 @@
                             </td>
                             <td class="px-6 py-4 align-top whitespace-nowrap text-right">
                                 <div class="flex justify-end gap-2">
-                                    <button wire:click="receive({{ $sample->id }})" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-700">Receive</button>
+                                    <button wire:click="receive({{ $sample->id }})" class="app-btn-success rounded-lg px-3 py-2 text-sm">Receive</button>
                                     <button wire:click="openReject({{ $sample->id }})" class="rounded-lg border border-red-200 px-3 py-2 text-sm text-red-600">Reject</button>
                                 </div>
                             </td>

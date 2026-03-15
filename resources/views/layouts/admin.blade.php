@@ -10,7 +10,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="h-full bg-gray-50 font-sans antialiased" x-data>
+@php($themeVars = collect(\Illuminate\Support\Arr::dot(config('ui.theme')))->map(fn ($value, $key) => '--ui-' . str_replace(['.', '_'], '-', $key) . ': ' . $value)->implode('; '))
+<body class="h-full bg-gray-50 font-sans antialiased" x-data style="{{ $themeVars }}">
 <div class="relative flex h-full overflow-hidden">
     <div
         x-cloak

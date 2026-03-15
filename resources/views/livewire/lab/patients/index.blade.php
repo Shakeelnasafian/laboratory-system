@@ -9,7 +9,7 @@
                 <option value="other">Other</option>
             </select>
         </div>
-        <a href="{{ route('lab.patients.create') }}" wire:navigate class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg transition">+ New Patient</a>
+        <a href="{{ route('lab.patients.create') }}" wire:navigate class="app-btn-primary rounded-lg px-4 py-2 text-sm transition">+ New Patient</a>
     </div>
 
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden">
@@ -44,7 +44,7 @@
                     </td>
                     <td class="px-6 py-3">
                         <div class="flex gap-2">
-                            <a href="{{ route('lab.orders.create') }}?patient={{ $patient->id }}" wire:navigate class="text-blue-600 hover:underline text-xs">+ Order</a>
+                            <a href="{{ route('lab.orders.create') }}?patient={{ $patient->id }}" wire:navigate class="app-link-primary text-xs">+ Order</a>
                             <a href="{{ route('lab.patients.edit', $patient) }}" wire:navigate class="text-gray-600 hover:underline text-xs">Edit</a>
                         </div>
                     </td>

@@ -9,7 +9,7 @@
                 Urgent only
             </label>
         </div>
-        <a href="{{ route('lab.worklists.index') }}" wire:navigate class="text-sm text-blue-600 hover:underline">Go to worklists</a>
+        <a href="{{ route('lab.worklists.index') }}" wire:navigate class="app-link-primary text-sm">Go to worklists</a>
     </div>
 
     <div class="overflow-hidden rounded-xl bg-white shadow">
@@ -29,7 +29,7 @@
                     @forelse($items as $item)
                         <tr>
                             <td class="px-6 py-4 align-top">
-                                <a href="{{ route('lab.orders.show', $item->order) }}" wire:navigate class="font-medium text-blue-600 hover:underline">{{ $item->order->order_number }}</a>
+                                <a href="{{ route('lab.orders.show', $item->order) }}" wire:navigate class="app-link-primary font-medium">{{ $item->order->order_number }}</a>
                                 @if($item->order->is_urgent)
                                     <span class="ml-2 text-xs font-semibold text-red-600">URGENT</span>
                                 @endif
@@ -45,14 +45,14 @@
                             <td class="px-6 py-4 align-top text-gray-700">{{ $item->sample?->sample_type ?: ($item->test->sample_type ?: 'General') }}</td>
                             <td class="px-6 py-4 align-top">
                                 @if($item->sample?->status === 'rejected')
-                                    <div class="text-xs font-medium text-red-600">Rejected for recollect</div>
+                                    <x-status-badge type="queue" status="rejected_for_recollect" />
                                     <div class="text-xs text-gray-500">{{ $item->sample->rejection_reason }}</div>
                                 @else
-                                    <span class="inline-flex rounded-full bg-yellow-100 px-2 py-1 text-xs text-yellow-700">Awaiting collection</span>
+                                    <x-status-badge type="queue" status="awaiting_collection" />
                                 @endif
                             </td>
                             <td class="px-6 py-4 align-top whitespace-nowrap text-right">
-                                <button wire:click="openCollect({{ $item->id }})" class="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
+                                <button wire:click="openCollect({{ $item->id }})" class="app-btn-primary rounded-lg px-4 py-2 text-sm">
                                     {{ $item->sample?->status === 'rejected' ? 'Recollect' : 'Collect' }}
                                 </button>
                             </td>
@@ -88,7 +88,7 @@
                     </div>
                     <div class="flex justify-end gap-3">
                         <button type="button" wire:click="$set('showCollectModal', false)" class="rounded-lg border px-4 py-2 text-sm">Cancel</button>
-                        <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2 text-sm text-white hover:bg-blue-700">Save Collection</button>
+                        <button type="submit" class="app-btn-primary rounded-lg px-5 py-2 text-sm">Save Collection</button>
                     </div>
                 </form>
             </div>

@@ -48,7 +48,7 @@
                         <td class="px-6 py-3 align-top font-mono text-xs text-gray-500">{{ $inv->invoice_number }}</td>
                         <td class="px-6 py-3 align-top font-medium text-gray-800 dark:text-white">{{ $inv->order->patient->name ?? '-' }}</td>
                         <td class="px-6 py-3 align-top">
-                            <a href="{{ route('lab.orders.show', $inv->order_id) }}" wire:navigate class="text-xs text-blue-600 hover:underline">{{ $inv->order->order_number }}</a>
+                            <a href="{{ route('lab.orders.show', $inv->order_id) }}" wire:navigate class="app-link-primary text-xs">{{ $inv->order->order_number }}</a>
                         </td>
                         <td class="px-6 py-3 align-top whitespace-nowrap text-right text-gray-700 dark:text-gray-200">Rs. {{ number_format($inv->total) }}</td>
                         <td class="px-6 py-3 align-top whitespace-nowrap text-right text-green-600">Rs. {{ number_format($inv->paid_amount) }}</td>
@@ -56,9 +56,7 @@
                             Rs. {{ number_format($inv->balance) }}
                         </td>
                         <td class="px-6 py-3 align-top whitespace-nowrap">
-                            <span class="inline-flex rounded-full px-2 py-0.5 text-xs {{ $inv->payment_status === 'paid' ? 'bg-green-100 text-green-700' : ($inv->payment_status === 'partial' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') }}">
-                                {{ ucfirst($inv->payment_status) }}
-                            </span>
+                            <x-status-badge type="payment" :status="$inv->payment_status" />
                         </td>
                         <td class="px-6 py-3 align-top whitespace-nowrap text-xs text-gray-400">{{ $inv->created_at->format('d M Y') }}</td>
                         <td class="px-6 py-3 align-top whitespace-nowrap">

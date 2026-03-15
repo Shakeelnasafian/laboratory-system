@@ -9,6 +9,15 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet"/>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
+    <style>
+        :root {
+            {!! cache()->rememberForever('ui.theme.css_vars', fn () =>
+                collect(\Illuminate\Support\Arr::dot(config('ui.theme')))
+                    ->map(fn ($value, $key) => '--ui-' . str_replace(['.', '_'], '-', $key) . ': ' . e($value) . ';')
+                    ->implode("\n            ")
+            ) !!}
+        }
+    </style>
 </head>
 <body class="h-full bg-gray-50 font-sans antialiased" x-data>
 <div class="relative flex h-full overflow-hidden">

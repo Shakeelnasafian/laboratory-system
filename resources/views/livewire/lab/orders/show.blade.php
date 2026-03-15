@@ -5,12 +5,12 @@
                 <h2 class="text-xl font-bold text-gray-800">Order #{{ $order->order_number }}</h2>
                 <p class="text-sm text-gray-500 mt-1">Placed {{ $order->created_at->format('d M Y, h:i A') }} by {{ $order->createdBy->name }}</p>
                 @if($order->is_urgent)
-                    <span class="inline-flex mt-3 px-3 py-1 rounded-full text-xs bg-red-100 text-red-700">Urgent</span>
+                    <div class="mt-3"><x-status-badge type="signal" status="urgent" /></div>
                 @endif
             </div>
             <div class="flex flex-wrap gap-2 justify-end">
                 @if($order->canPrintReport())
-                    <a href="{{ route('lab.orders.report', $order) }}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm">Print Report</a>
+                    <a href="{{ route('lab.orders.report', $order) }}" target="_blank" class="app-btn-success rounded-lg px-4 py-2 text-sm">Print Report</a>
                 @else
                     <span class="px-4 py-2 rounded-lg text-sm bg-yellow-50 text-yellow-800">Release report after all results are verified.</span>
                 @endif
@@ -21,13 +21,11 @@
         </div>
 
         <div class="mt-4 flex flex-wrap gap-3 text-sm">
-            @php($colors = ['pending' => 'yellow', 'sample_collected' => 'blue', 'processing' => 'indigo', 'completed' => 'green', 'cancelled' => 'red'])
-            @php($color = $colors[$order->status] ?? 'gray')
-            <span class="px-3 py-1 rounded-full bg-{{ $color }}-100 text-{{ $color }}-700 font-medium">{{ \App\Models\Order::STATUSES[$order->status] }}</span>
+            <x-status-badge type="order" :status="$order->status" />
             @if($order->canPrintReport())
-                <span class="px-3 py-1 rounded-full bg-green-100 text-green-700 font-medium">Report Released</span>
+                <x-status-badge type="queue" status="released" label="Report Released" />
             @elseif($order->canReleaseReport())
-                <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 font-medium">Ready for Release</span>
+                <x-status-badge type="queue" status="ready" label="Ready for Release" />
             @endif
         </div>
     </div>
@@ -86,11 +84,9 @@
                         </td>
                         <td class="px-6 py-4">
                             @if($item->result)
-                                @php($statusColors = ['draft' => 'yellow', 'verified' => 'blue', 'released' => 'green'])
-                                @php($statusColor = $statusColors[$item->result->status] ?? 'gray')
-                                <span class="px-2 py-1 rounded-full text-xs bg-{{ $statusColor }}-100 text-{{ $statusColor }}-700">{{ ucfirst($item->result->status) }}</span>
+                                <x-status-badge type="result" :status="$item->result->status" />
                                 @if($item->result->flag === 'critical')
-                                    <div class="text-xs text-red-600 mt-1">Critical</div>
+                                    <div class="mt-1"><x-status-badge type="signal" status="critical" /></div>
                                 @endif
                             @else
                                 <span class="text-gray-400">Not started</span>
@@ -127,12 +123,12 @@
                 <div><p class="text-gray-500">Total</p><p class="font-medium text-gray-800">Rs. {{ number_format($order->invoice->total) }}</p></div>
                 <div><p class="text-gray-500">Paid</p><p class="font-medium text-green-600">Rs. {{ number_format($order->invoice->paid_amount) }}</p></div>
                 <div><p class="text-gray-500">Balance</p><p class="font-medium {{ $order->invoice->balance > 0 ? 'text-red-600' : 'text-gray-500' }}">Rs. {{ number_format($order->invoice->balance) }}</p></div>
-                <div><p class="text-gray-500">Status</p><span class="px-2 py-1 rounded-full text-xs {{ $order->invoice->payment_status === 'paid' ? 'bg-green-100 text-green-700' : ($order->invoice->payment_status === 'partial' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') }}">{{ ucfirst($order->invoice->payment_status) }}</span></div>
+                <div><p class="text-gray-500">Status</p><x-status-badge type="payment" :status="$order->invoice->payment_status" /></div>
             </div>
         </div>
     @endif
 
     <div class="flex justify-start">
-        <a href="{{ route('lab.orders.index') }}" wire:navigate class="text-blue-600 hover:underline text-sm">Back to Orders</a>
+        <a href="{{ route('lab.orders.index') }}" wire:navigate class="app-link-primary text-sm">Back to Orders</a>
     </div>
 </div>
