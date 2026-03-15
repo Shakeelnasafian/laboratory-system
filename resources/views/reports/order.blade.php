@@ -3,29 +3,30 @@
 <head>
     <meta charset="utf-8">
     <title>Report - {{ $order->order_number }}</title>
+    @php($reportTheme = config('ui.theme.report'))
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #333; padding: 20px; }
-        .header { text-align: center; border-bottom: 2px solid #1e40af; padding-bottom: 12px; margin-bottom: 15px; }
-        .header h1 { font-size: 20px; color: #1e40af; margin-bottom: 2px; }
-        .header p { font-size: 10px; color: #666; }
+        body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: {{ $reportTheme['body_text'] }}; padding: 20px; }
+        .header { text-align: center; border-bottom: 2px solid {{ $reportTheme['primary'] }}; padding-bottom: 12px; margin-bottom: 15px; }
+        .header h1 { font-size: 20px; color: {{ $reportTheme['primary'] }}; margin-bottom: 2px; }
+        .header p { font-size: 10px; color: {{ $reportTheme['muted'] }}; }
         .info-table, .results-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
         .info-table td { padding: 4px 8px; font-size: 10px; }
-        .info-table .label { font-weight: bold; color: #555; width: 15%; }
+        .info-table .label { font-weight: bold; color: {{ $reportTheme['label'] }}; width: 15%; }
         .info-table .value { width: 35%; }
-        .results-table th { background: #1e40af; color: white; padding: 8px 10px; text-align: left; font-size: 10px; text-transform: uppercase; }
-        .results-table td { padding: 7px 10px; border-bottom: 1px solid #ddd; }
-        .results-table tr:nth-child(even) { background: #f8f9fa; }
-        .abnormal { color: #dc2626; font-weight: bold; }
-        .flag-high { color: #dc2626; }
-        .flag-low { color: #2563eb; }
-        .flag-critical { color: #dc2626; font-weight: bold; text-transform: uppercase; }
-        .footer { position: fixed; bottom: 20px; left: 20px; right: 20px; text-align: center; border-top: 1px solid #ddd; padding-top: 8px; font-size: 9px; color: #888; }
-        .order-meta { background: #f0f4ff; padding: 8px 12px; border-radius: 4px; margin-bottom: 15px; font-size: 10px; }
+        .results-table th { background: {{ $reportTheme['primary'] }}; color: white; padding: 8px 10px; text-align: left; font-size: 10px; text-transform: uppercase; }
+        .results-table td { padding: 7px 10px; border-bottom: 1px solid {{ $reportTheme['border'] }}; }
+        .results-table tr:nth-child(even) { background: {{ $reportTheme['row_alt'] }}; }
+        .abnormal { color: {{ $reportTheme['danger'] }}; font-weight: bold; }
+        .flag-high { color: {{ $reportTheme['danger'] }}; }
+        .flag-low { color: {{ $reportTheme['info'] }}; }
+        .flag-critical { color: {{ $reportTheme['danger'] }}; font-weight: bold; text-transform: uppercase; }
+        .footer { position: fixed; bottom: 20px; left: 20px; right: 20px; text-align: center; border-top: 1px solid {{ $reportTheme['border'] }}; padding-top: 8px; font-size: 9px; color: {{ $reportTheme['footer'] }}; }
+        .order-meta { background: {{ $reportTheme['meta_surface'] }}; padding: 8px 12px; border-radius: 4px; margin-bottom: 15px; font-size: 10px; }
         .signatures { display: table; width: 100%; margin-top: 40px; }
         .sig-col { display: table-cell; width: 33%; text-align: center; padding-top: 30px; }
-        .sig-line { border-top: 1px solid #333; display: inline-block; width: 120px; }
-        .sig-label { font-size: 9px; color: #666; margin-top: 3px; }
+        .sig-line { border-top: 1px solid {{ $reportTheme['body_text'] }}; display: inline-block; width: 120px; }
+        .sig-label { font-size: 9px; color: {{ $reportTheme['muted'] }}; margin-top: 3px; }
     </style>
 </head>
 <body>
@@ -96,7 +97,7 @@
                 </tr>
                 @if($item->result?->remarks)
                     <tr>
-                        <td colspan="6" style="font-size: 9px; color: #666; padding-left: 20px;">Note: {{ $item->result->remarks }}</td>
+                        <td colspan="6" style="font-size: 9px; color: {{ $reportTheme['muted'] }}; padding-left: 20px;">Note: {{ $item->result->remarks }}</td>
                     </tr>
                 @endif
             @endforeach

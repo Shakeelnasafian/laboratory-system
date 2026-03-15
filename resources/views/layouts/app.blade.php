@@ -14,7 +14,8 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
+    @php($themeVars = collect(\Illuminate\Support\Arr::dot(config('ui.theme')))->map(fn ($value, $key) => '--ui-' . str_replace(['.', '_'], '-', $key) . ': ' . $value)->implode('; '))
+    <body class="font-sans antialiased" style="{{ $themeVars }}">
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             @include('layouts.navigation')
 

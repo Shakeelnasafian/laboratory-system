@@ -1,6 +1,6 @@
 <div>
     <div class="mb-4 flex justify-end">
-        <button wire:click="openCreate" class="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition hover:bg-blue-700">+ Add Staff</button>
+        <button wire:click="openCreate" class="app-btn-primary rounded-lg px-4 py-2 text-sm transition">+ Add Staff</button>
     </div>
 
     @if($showForm)
@@ -38,7 +38,7 @@
                 </div>
                 <div class="flex justify-end gap-3">
                     <button type="button" wire:click="$set('showForm', false)" class="rounded-lg border px-4 py-2 text-sm text-gray-600 dark:text-gray-300">Cancel</button>
-                    <button type="submit" class="rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                    <button type="submit" class="app-btn-primary rounded-lg px-6 py-2 text-sm font-medium">
                         {{ $editingId ? 'Update' : 'Create' }} User
                     </button>
                 </div>
@@ -67,18 +67,14 @@
                         <td class="px-6 py-3 text-gray-500">{{ $user->email }}</td>
                         <td class="px-6 py-3 text-gray-500">{{ $user->phone ?? '-' }}</td>
                         <td class="px-6 py-3 whitespace-nowrap">
-                            <span class="inline-flex rounded-full bg-blue-100 px-2 py-0.5 text-xs capitalize text-blue-700">
-                                {{ str_replace('_', ' ', $user->roles->first()?->name ?? '-') }}
-                            </span>
+                            <x-status-badge type="role" :status="$user->roles->first()?->name ?? 'receptionist'" :label="str_replace('_', ' ', $user->roles->first()?->name ?? '-')" class="capitalize" />
                         </td>
                         <td class="px-6 py-3 whitespace-nowrap">
-                            <span class="inline-flex rounded-full px-2 py-0.5 text-xs {{ $user->is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                                {{ $user->is_active ? 'Active' : 'Inactive' }}
-                            </span>
+                            <x-status-badge type="signal" :status="$user->is_active ? 'active' : 'inactive'" />
                         </td>
                         <td class="px-6 py-3 whitespace-nowrap">
                             <div class="flex gap-2">
-                                <button wire:click="edit({{ $user->id }})" class="text-xs text-blue-600 hover:underline">Edit</button>
+                                <button wire:click="edit({{ $user->id }})" class="app-link-primary text-xs">Edit</button>
                                 <button wire:click="toggleActive({{ $user->id }})" class="text-xs {{ $user->is_active ? 'text-red-500' : 'text-green-500' }} hover:underline">
                                     {{ $user->is_active ? 'Deactivate' : 'Activate' }}
                                 </button>

@@ -36,9 +36,7 @@
                     <td class="px-6 py-3 font-medium text-gray-800 dark:text-white">{{ $lab->name }}</td>
                     <td class="px-6 py-3 text-gray-500">{{ $lab->city ?? '—' }}</td>
                     <td class="px-6 py-3">
-                        <span class="px-2 py-1 rounded-full text-xs {{ $lab->is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                            {{ $lab->is_active ? 'Active' : 'Inactive' }}
-                        </span>
+                        <x-status-badge type="signal" :status="$lab->is_active ? 'active' : 'inactive'" />
                     </td>
                     <td class="px-6 py-3 text-gray-500">{{ $lab->created_at->format('d M Y') }}</td>
                 </tr>

@@ -13,6 +13,13 @@ class OrderItem extends Model
     public const STATUS_PROCESSING = 'processing';
     public const STATUS_COMPLETED = 'completed';
 
+    public const STATUSES = [
+        self::STATUS_PENDING => 'Pending',
+        self::STATUS_SAMPLE_COLLECTED => 'Sample Collected',
+        self::STATUS_PROCESSING => 'Processing',
+        self::STATUS_COMPLETED => 'Completed',
+    ];
+
     protected $fillable = [
         'order_id',
         'test_id',
@@ -55,6 +62,21 @@ class OrderItem extends Model
     public function assignedTo(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
+    }
+
+    public function isProcessing(): bool
+    {
+        return $this->status === self::STATUS_PROCESSING;
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->status === self::STATUS_COMPLETED;
     }
 
     public function isOverdue(): bool

@@ -1,5 +1,5 @@
 <aside
-    class="fixed inset-y-0 left-0 z-40 flex flex-col bg-gray-900 text-white shadow-2xl transition-all duration-300 ease-out lg:static lg:translate-x-0 lg:shadow-none"
+    class="fixed inset-y-0 left-0 z-40 flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden bg-gray-900 text-white shadow-2xl transition-all duration-300 ease-out lg:static lg:h-full lg:max-h-full lg:translate-x-0 lg:shadow-none"
     :class="[
         $store.adminSidebar.open || $store.adminSidebar.isDesktop ? 'translate-x-0' : '-translate-x-full',
         $store.adminSidebar.mini && $store.adminSidebar.isDesktop ? 'w-[5.5rem]' : 'w-72'
@@ -35,7 +35,7 @@
         </div>
     </div>
 
-    <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+    <nav class="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-y-contain px-3 py-4">
         <x-admin-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
             <x-slot name="icon"><x-sidebar-icon name="dashboard" /></x-slot> Dashboard
         </x-admin-nav-link>
@@ -47,7 +47,7 @@
         </x-admin-nav-link>
     </nav>
 
-    <div class="border-t border-gray-800 px-4 py-3">
+    <div class="shrink-0 border-t border-gray-800 px-4 py-3">
         <div class="flex items-center gap-3" :class="$store.adminSidebar.mini && $store.adminSidebar.isDesktop ? 'justify-center' : 'justify-between'">
             <div x-show="!$store.adminSidebar.mini || !$store.adminSidebar.isDesktop" x-transition.opacity.duration.150ms>
                 <p class="text-sm font-medium">{{ auth()->user()->name }}</p>

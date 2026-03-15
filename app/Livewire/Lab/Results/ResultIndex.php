@@ -6,6 +6,7 @@ use App\Models\OrderItem;
 use App\Models\Result;
 use App\Services\LabWorkflowService;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -84,7 +85,7 @@ class ResultIndex extends Component
         session()->flash('success', 'Result verified.');
     }
 
-    public function render()
+    public function render(): View
     {
         $items = OrderItem::with(['order.patient', 'test', 'sample', 'result'])
             ->whereHas('order', fn ($query) => $query
@@ -102,7 +103,9 @@ class ResultIndex extends Component
             ->latest()
             ->paginate(15);
 
-        return view('livewire.lab.results.index', compact('items'))
+        $canVerify = auth()->user()->canVerifyResults();
+
+        return view('livewire.lab.results.index', compact('items', 'canVerify'))
             ->layout('layouts.lab', ['title' => 'Test Results']);
     }
 

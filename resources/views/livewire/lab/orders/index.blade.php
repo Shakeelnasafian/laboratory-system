@@ -1,7 +1,7 @@
 <div>
     <div class="mb-6 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div class="grid gap-3 sm:grid-cols-2 xl:flex xl:flex-wrap">
-            <input wire:model.live="search" type="text" placeholder="Order # or patient name..." class="w-full rounded-lg border px-4 py-2 text-sm sm:min-w-80 xl:w-80">
+            <input wire:model.live.debounce.500ms="search" type="text" placeholder="Order # or patient name..." class="w-full rounded-lg border px-4 py-2 text-sm sm:min-w-80 xl:w-80">
             <select wire:model.live="status" class="w-full rounded-lg border px-3 py-2 text-sm sm:w-auto sm:min-w-48">
                 <option value="">All Status</option>
                 <option value="pending">Pending</option>
@@ -12,7 +12,7 @@
             </select>
             <input wire:model.live="date" type="date" class="w-full rounded-lg border px-3 py-2 text-sm sm:w-auto sm:min-w-48">
         </div>
-        <a href="{{ route('lab.orders.create') }}" wire:navigate class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition hover:bg-blue-700 sm:w-fit">New Order</a>
+        <a href="{{ route('lab.orders.create') }}" wire:navigate class="app-btn-primary inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm transition sm:w-fit">New Order</a>
     </div>
 
     <div class="overflow-hidden rounded-xl bg-white shadow">
@@ -35,7 +35,7 @@
                     @forelse($orders as $order)
                         <tr>
                             <td class="px-6 py-4 align-top">
-                                <a href="{{ route('lab.orders.show', $order) }}" wire:navigate class="font-medium text-blue-600 hover:underline">{{ $order->order_number }}</a>
+                                <a href="{{ route('lab.orders.show', $order) }}" wire:navigate class="app-link-primary font-medium">{{ $order->order_number }}</a>
                                 @if($order->is_urgent)
                                     <div class="text-xs font-semibold text-red-600">URGENT</div>
                                 @endif
@@ -48,28 +48,24 @@
                             <td class="px-6 py-4 align-top whitespace-nowrap font-medium text-gray-700">Rs. {{ number_format($order->net_amount) }}</td>
                             <td class="px-6 py-4 align-top whitespace-nowrap">
                                 @if($order->invoice)
-                                    @php($paymentColors = ['paid' => 'green', 'partial' => 'yellow', 'unpaid' => 'red'])
-                                    @php($paymentColor = $paymentColors[$order->invoice->payment_status] ?? 'gray')
-                                    <span class="inline-flex rounded-full px-2 py-1 text-xs bg-{{ $paymentColor }}-100 text-{{ $paymentColor }}-700">{{ ucfirst($order->invoice->payment_status) }}</span>
+                                    <x-status-badge type="payment" :status="$order->invoice->payment_status" />
                                 @endif
                             </td>
                             <td class="px-6 py-4 align-top whitespace-nowrap">
-                                @php($orderColors = ['pending' => 'yellow', 'sample_collected' => 'blue', 'processing' => 'indigo', 'completed' => 'green', 'cancelled' => 'red'])
-                                @php($orderColor = $orderColors[$order->status] ?? 'gray')
-                                <span class="inline-flex rounded-full px-2 py-1 text-xs bg-{{ $orderColor }}-100 text-{{ $orderColor }}-700">{{ \App\Models\Order::STATUSES[$order->status] }}</span>
+                                <x-status-badge type="order" :status="$order->status" />
                             </td>
                             <td class="px-6 py-4 align-top whitespace-nowrap">
                                 @if($order->canPrintReport())
-                                    <span class="inline-flex rounded-full bg-green-100 px-2 py-1 text-xs text-green-700">Released</span>
+                                    <x-status-badge type="queue" status="released" />
                                 @elseif($order->canReleaseReport())
-                                    <span class="inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-700">Ready</span>
+                                    <x-status-badge type="queue" status="ready" />
                                 @else
-                                    <span class="inline-flex rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600">In progress</span>
+                                    <x-status-badge type="queue" status="in_progress" />
                                 @endif
                             </td>
                             <td class="px-6 py-4 align-top whitespace-nowrap text-xs text-gray-400">{{ $order->created_at->format('d M Y H:i') }}</td>
                             <td class="px-6 py-4 align-top whitespace-nowrap">
-                                <a href="{{ route('lab.orders.show', $order) }}" wire:navigate class="text-xs text-blue-600 hover:underline">View</a>
+                                <a href="{{ route('lab.orders.show', $order) }}" wire:navigate class="app-link-primary text-xs">View</a>
                             </td>
                         </tr>
                     @empty

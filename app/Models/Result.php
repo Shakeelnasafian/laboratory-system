@@ -13,9 +13,22 @@ class Result extends Model
     public const FLAG_LOW = 'low';
     public const FLAG_CRITICAL = 'critical';
 
+    public const FLAGS = [
+        self::FLAG_NORMAL => 'Normal',
+        self::FLAG_HIGH => 'High',
+        self::FLAG_LOW => 'Low',
+        self::FLAG_CRITICAL => 'Critical',
+    ];
+
     public const STATUS_DRAFT = 'draft';
     public const STATUS_VERIFIED = 'verified';
     public const STATUS_RELEASED = 'released';
+
+    public const STATUSES = [
+        self::STATUS_DRAFT => 'Draft',
+        self::STATUS_VERIFIED => 'Verified',
+        self::STATUS_RELEASED => 'Released',
+    ];
 
     protected $fillable = [
         'order_item_id', 'entered_by', 'value', 'unit',
@@ -55,5 +68,30 @@ class Result extends Model
     public function revisions(): HasMany
     {
         return $this->hasMany(ResultRevision::class);
+    }
+
+    public function isDraft(): bool
+    {
+        return $this->status === self::STATUS_DRAFT;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->status === self::STATUS_VERIFIED;
+    }
+
+    public function isReleased(): bool
+    {
+        return $this->status === self::STATUS_RELEASED;
+    }
+
+    public function isCritical(): bool
+    {
+        return $this->flag === self::FLAG_CRITICAL;
+    }
+
+    public function isAbnormal(): bool
+    {
+        return $this->is_abnormal;
     }
 }

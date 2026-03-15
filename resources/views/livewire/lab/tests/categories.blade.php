@@ -1,6 +1,6 @@
 <div>
     <div class="flex justify-end mb-4">
-        <button wire:click="openCreate" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg transition">+ Add Category</button>
+        <button wire:click="openCreate" class="app-btn-primary rounded-lg px-4 py-2 text-sm transition">+ Add Category</button>
     </div>
 
     @if($showForm)
@@ -15,7 +15,7 @@
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
                 <input wire:model="description" type="text" class="w-full border rounded-lg px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
             </div>
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-medium">
+            <button type="submit" class="app-btn-primary rounded-lg px-5 py-2 text-sm font-medium">
                 {{ $editingId ? 'Update' : 'Save' }}
             </button>
             <button type="button" wire:click="$set('showForm', false)" class="border px-4 py-2 rounded-lg text-sm text-gray-600">Cancel</button>
@@ -41,7 +41,7 @@
                     <td class="px-6 py-3"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs">{{ $cat->tests_count }}</span></td>
                     <td class="px-6 py-3">
                         <div class="flex gap-2">
-                            <button wire:click="edit({{ $cat->id }})" class="text-blue-600 hover:underline text-xs">Edit</button>
+                            <button wire:click="edit({{ $cat->id }})" class="app-link-primary text-xs">Edit</button>
                             <button wire:click="delete({{ $cat->id }})" wire:confirm="Delete this category?" class="text-red-500 hover:underline text-xs">Delete</button>
                         </div>
                     </td>

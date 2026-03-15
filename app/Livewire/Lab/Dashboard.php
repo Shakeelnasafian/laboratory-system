@@ -10,12 +10,12 @@ use App\Models\Sample;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class Dashboard extends Component
 {
-    public function render()
+    public function render(): View
     {
         $labId = auth()->user()->lab_id;
         $days = $this->dateWindow();
@@ -109,76 +109,68 @@ class Dashboard extends Component
 
         $statCards = [
             $this->makeStatCard(
+                'today_orders',
                 'Today\'s Orders',
                 (string) $todayOrders,
                 $ordersTrend,
-                '6 new in 7-day intake view',
-                $this->differenceLabel($ordersTrend, 'vs yesterday'),
-                '#1d4ed8',
-                'rgba(37, 99, 235, 0.14)'
+                'Order intake across the last 7 days',
+                $this->differenceLabel($ordersTrend, 'vs yesterday')
             ),
             $this->makeStatCard(
+                'today_patients',
                 'Today\'s Patients',
                 (string) $todayPatients,
                 $patientsTrend,
                 'Registration flow across the last week',
-                $this->differenceLabel($patientsTrend, 'vs yesterday'),
-                '#2563eb',
-                'rgba(59, 130, 246, 0.14)'
+                $this->differenceLabel($patientsTrend, 'vs yesterday')
             ),
             $this->makeStatCard(
+                'pending_collection',
                 'Pending Collection',
                 (string) $pendingCollection,
                 $pendingCollectionTrend,
                 'Items still waiting at collection or recollect',
-                $this->differenceLabel($pendingCollectionTrend, 'queue drift'),
-                '#d97706',
-                'rgba(245, 158, 11, 0.16)'
+                $this->differenceLabel($pendingCollectionTrend, 'queue drift')
             ),
             $this->makeStatCard(
+                'processing_items',
                 'In Processing',
                 (string) $processingItems,
                 $processingTrend,
                 'Bench workload currently in motion',
-                $this->differenceLabel($processingTrend, 'bench momentum'),
-                '#4f46e5',
-                'rgba(99, 102, 241, 0.14)'
+                $this->differenceLabel($processingTrend, 'bench momentum')
             ),
             $this->makeStatCard(
+                'overdue_items',
                 'Overdue Items',
                 (string) $overdueItems,
                 $overdueTrend,
                 'Turnaround pressure over the last 7 days',
-                $this->differenceLabel($overdueTrend, 'risk change'),
-                '#dc2626',
-                'rgba(239, 68, 68, 0.15)'
+                $this->differenceLabel($overdueTrend, 'risk change')
             ),
             $this->makeStatCard(
+                'completed_items',
                 'Completed Today',
                 (string) $completedItemsToday,
                 $completedTrend,
                 'Finished bench items and validated output',
-                $this->differenceLabel($completedTrend, 'vs yesterday'),
-                '#059669',
-                'rgba(16, 185, 129, 0.15)'
+                $this->differenceLabel($completedTrend, 'vs yesterday')
             ),
             $this->makeStatCard(
+                'today_revenue',
                 'Today\'s Revenue',
                 'Rs. ' . number_format($todayRevenue),
                 $revenueTrend,
                 'Collections captured across the last week',
-                $this->differenceLabel($revenueTrend, 'vs yesterday', true),
-                '#0f766e',
-                'rgba(20, 184, 166, 0.14)'
+                $this->differenceLabel($revenueTrend, 'vs yesterday', true)
             ),
             $this->makeStatCard(
+                'total_patients',
                 'Total Patients',
                 (string) $totalPatients,
                 $totalPatientsTrend,
                 'Cumulative patient base over the last 7 days',
-                $this->windowGrowthLabel($totalPatientsTrend),
-                '#0f172a',
-                'rgba(148, 163, 184, 0.16)'
+                $this->windowGrowthLabel($totalPatientsTrend)
             ),
         ];
 
@@ -253,21 +245,22 @@ class Dashboard extends Component
     }
 
     private function makeStatCard(
+        string $metricKey,
         string $label,
         string $value,
         array $series,
         string $subtitle,
-        string $trendLabel,
-        string $accent,
-        string $soft
+        string $trendLabel
     ): array {
+        $palette = config("ui.dashboard_metrics.{$metricKey}", config('ui.theme.dashboard.fallback'));
+
         return [
             'label' => $label,
             'value' => $value,
             'subtitle' => $subtitle,
             'trendLabel' => $trendLabel,
-            'accent' => $accent,
-            'soft' => $soft,
+            'accent' => $palette['accent'],
+            'soft' => $palette['soft'],
             'spark' => $this->sparkline($series),
         ];
     }
@@ -279,7 +272,7 @@ class Dashboard extends Component
         $previous = (float) ($values[count($values) - 2] ?? 0);
         $difference = $current - $previous;
 
-        if ($difference === 0.0) {
+        if (abs($difference) < PHP_FLOAT_EPSILON) {
             return 'No change ' . $suffix;
         }
 
@@ -295,7 +288,7 @@ class Dashboard extends Component
         $values = array_values($series);
         $growth = (float) (($values[count($values) - 1] ?? 0) - ($values[0] ?? 0));
 
-        if ($growth === 0.0) {
+        if (abs($growth) < PHP_FLOAT_EPSILON) {
             return 'Stable over 7 days';
         }
 

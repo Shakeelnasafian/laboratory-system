@@ -1,5 +1,5 @@
 <aside
-    class="fixed inset-y-0 left-0 z-40 flex flex-col bg-blue-900 text-white shadow-2xl transition-all duration-300 ease-out lg:static lg:translate-x-0 lg:shadow-none"
+    class="fixed inset-y-0 left-0 z-40 flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden bg-blue-900 text-white shadow-2xl transition-all duration-300 ease-out lg:static lg:h-full lg:max-h-full lg:translate-x-0 lg:shadow-none"
     :class="[
         $store.labSidebar.open || $store.labSidebar.isDesktop ? 'translate-x-0' : '-translate-x-full',
         $store.labSidebar.mini && $store.labSidebar.isDesktop ? 'w-[5.5rem]' : 'w-72'
@@ -38,7 +38,7 @@
         </div>
     </div>
 
-    <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+    <nav class="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-y-contain px-3 py-4">
         <x-lab-nav-link :href="route('lab.dashboard')" :active="request()->routeIs('lab.dashboard')">
             <x-slot name="icon"><x-sidebar-icon name="dashboard" /></x-slot> Dashboard
         </x-lab-nav-link>
@@ -109,7 +109,7 @@
         @endrole
     </nav>
 
-    <div class="border-t border-blue-800 px-4 py-3">
+    <div class="shrink-0 border-t border-blue-800 px-4 py-3">
         <div class="flex items-center gap-3" :class="$store.labSidebar.mini && $store.labSidebar.isDesktop ? 'justify-center' : 'justify-between'">
             <div class="min-w-0" x-show="!$store.labSidebar.mini || !$store.labSidebar.isDesktop" x-transition.opacity.duration.150ms>
                 <p class="truncate text-sm font-medium">{{ auth()->user()->name }}</p>

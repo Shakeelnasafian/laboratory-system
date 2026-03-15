@@ -9,7 +9,7 @@
                 @endforeach
             </select>
         </div>
-        <button wire:click="openCreate" class="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition hover:bg-blue-700 sm:w-fit">+ Add Test</button>
+        <button wire:click="openCreate" class="app-btn-primary rounded-lg px-4 py-2 text-sm transition sm:w-fit">+ Add Test</button>
     </div>
 
     @if($showForm)
@@ -70,7 +70,7 @@
                 </div>
                 <div class="flex justify-end gap-3 sm:col-span-2">
                     <button type="button" wire:click="$set('showForm', false)" class="rounded-lg border px-5 py-2 text-sm text-gray-600">Cancel</button>
-                    <button type="submit" class="rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                    <button type="submit" class="app-btn-primary rounded-lg px-6 py-2 text-sm font-medium">
                         <span wire:loading.remove>{{ $editingId ? 'Update' : 'Save' }} Test</span>
                         <span wire:loading>Saving...</span>
                     </button>
@@ -111,12 +111,12 @@
                         </td>
                         <td class="px-6 py-3 text-gray-500">{{ $test->sample_type ?? '-' }}</td>
                         <td class="px-6 py-3 whitespace-nowrap">
-                            <button wire:click="toggleActive({{ $test->id }})" class="inline-flex rounded-full px-2 py-0.5 text-xs {{ $test->is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                                {{ $test->is_active ? 'Active' : 'Inactive' }}
+                            <button wire:click="toggleActive({{ $test->id }})">
+                                <x-status-badge type="signal" :status="$test->is_active ? 'active' : 'inactive'" />
                             </button>
                         </td>
                         <td class="px-6 py-3 whitespace-nowrap">
-                            <button wire:click="edit({{ $test->id }})" class="text-xs text-blue-600 hover:underline">Edit</button>
+                            <button wire:click="edit({{ $test->id }})" class="app-link-primary text-xs">Edit</button>
                         </td>
                     </tr>
                     @empty

@@ -52,7 +52,7 @@
         </div>
         <div class="flex gap-3 justify-end pt-2">
             <a href="{{ route('lab.patients.index') }}" wire:navigate class="border px-5 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300">Cancel</a>
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition">
+            <button type="submit" class="app-btn-primary rounded-lg px-6 py-2 text-sm font-medium transition">
                 <span wire:loading.remove>Update Patient</span>
                 <span wire:loading>Saving...</span>
             </button>

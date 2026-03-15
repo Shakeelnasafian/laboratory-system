@@ -1,7 +1,7 @@
 <div>
     <div class="mb-6 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div class="grid gap-3 sm:grid-cols-2 xl:flex xl:flex-wrap">
-            <input wire:model.live="search" type="text" placeholder="Search order or patient..." class="w-full rounded-lg border px-4 py-2 text-sm sm:min-w-80 xl:w-80">
+            <input wire:model.live.debounce.500ms="search" type="text" placeholder="Search order or patient..." class="w-full rounded-lg border px-4 py-2 text-sm sm:min-w-80 xl:w-80">
             <select wire:model.live="status" class="w-full rounded-lg border px-3 py-2 text-sm sm:w-auto sm:min-w-36">
                 <option value="">All</option>
                 <option value="pending">Pending Entry</option>
@@ -11,7 +11,7 @@
                 <option value="critical">Critical</option>
             </select>
         </div>
-        <a href="{{ route('lab.results.release') }}" wire:navigate class="text-sm text-blue-600 hover:underline">Go to release queue</a>
+        <a href="{{ route('lab.results.release') }}" wire:navigate class="app-link-primary text-sm">Go to release queue</a>
     </div>
 
     <div class="overflow-hidden rounded-xl bg-white shadow">
@@ -30,7 +30,7 @@
                 <tbody class="divide-y divide-gray-100">
                     @forelse($items as $item)
                         <tr>
-                            <td class="px-6 py-4 align-top"><a href="{{ route('lab.orders.show', $item->order) }}" wire:navigate class="font-medium text-blue-600 hover:underline">{{ $item->order->order_number }}</a></td>
+                            <td class="px-6 py-4 align-top"><a href="{{ route('lab.orders.show', $item->order) }}" wire:navigate class="app-link-primary font-medium">{{ $item->order->order_number }}</a></td>
                             <td class="px-6 py-4 align-top">{{ $item->order->patient->name }}</td>
                             <td class="px-6 py-4 align-top">
                                 <div>{{ $item->test->name }}</div>
@@ -46,20 +46,18 @@
                             </td>
                             <td class="px-6 py-4 align-top whitespace-nowrap">
                                 @if($item->result)
-                                    @php($statusColors = ['draft' => 'yellow', 'verified' => 'blue', 'released' => 'green'])
-                                    @php($statusColor = $statusColors[$item->result->status] ?? 'gray')
-                                    <span class="inline-flex rounded-full px-2 py-1 text-xs bg-{{ $statusColor }}-100 text-{{ $statusColor }}-700">{{ ucfirst($item->result->status) }}</span>
+                                    <x-status-badge type="result" :status="$item->result->status" />
                                     @if($item->result->flag === 'critical')
-                                        <div class="mt-1 text-xs font-medium text-red-600">Critical</div>
+                                        <div class="mt-1"><x-status-badge type="signal" status="critical" /></div>
                                     @endif
                                 @else
-                                    <span class="inline-flex rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600">Waiting for draft</span>
+                                    <x-status-badge type="queue" status="waiting_for_draft" />
                                 @endif
                             </td>
                             <td class="px-6 py-4 align-top whitespace-nowrap text-right">
                                 <div class="flex justify-end gap-3">
-                                    <button wire:click="openResultEntry({{ $item->id }})" class="text-sm text-blue-600 hover:underline">{{ $item->result ? 'Edit' : 'Enter' }}</button>
-                                    @if($item->result && $item->result->status === 'draft' && auth()->user()->canVerifyResults())
+                                    <button wire:click="openResultEntry({{ $item->id }})" class="app-link-primary text-sm">{{ $item->result ? 'Edit' : 'Enter' }}</button>
+                                    @if($item->result && $item->result->status === 'draft' && $canVerify)
                                         <button wire:click="verify({{ $item->id }})" class="text-sm text-emerald-600 hover:underline">Verify</button>
                                     @endif
                                 </div>
@@ -115,7 +113,7 @@
                     </div>
                     <div class="flex justify-end gap-3">
                         <button type="button" wire:click="$set('showModal', false)" class="rounded-lg border px-4 py-2 text-sm">Cancel</button>
-                        <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2 text-sm text-white hover:bg-blue-700">Save Draft</button>
+                        <button type="submit" class="app-btn-primary rounded-lg px-5 py-2 text-sm">Save Draft</button>
                     </div>
                 </form>
             </div>

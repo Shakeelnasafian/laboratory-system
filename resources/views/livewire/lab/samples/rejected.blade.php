@@ -23,12 +23,12 @@
                     @forelse($samples as $sample)
                         <tr>
                             <td class="px-6 py-4 align-top whitespace-nowrap font-mono text-red-600">{{ $sample->accession_number }}</td>
-                            <td class="px-6 py-4 align-top"><a href="{{ route('lab.orders.show', $sample->orderItem->order) }}" wire:navigate class="text-blue-600 hover:underline">{{ $sample->orderItem->order->order_number }}</a></td>
+                            <td class="px-6 py-4 align-top"><a href="{{ route('lab.orders.show', $sample->orderItem->order) }}" wire:navigate class="app-link-primary">{{ $sample->orderItem->order->order_number }}</a></td>
                             <td class="px-6 py-4 align-top">{{ $sample->orderItem->order->patient->name }}</td>
                             <td class="px-6 py-4 align-top">{{ $sample->orderItem->test->name }}</td>
                             <td class="px-6 py-4 align-top text-sm text-gray-600">{{ $sample->rejection_reason }}</td>
                             <td class="px-6 py-4 align-top whitespace-nowrap text-right">
-                                <button wire:click="openRecollect({{ $sample->id }})" class="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">Recollect</button>
+                                <button wire:click="openRecollect({{ $sample->id }})" class="app-btn-primary rounded-lg px-4 py-2 text-sm">Recollect</button>
                             </td>
                         </tr>
                     @empty
@@ -59,7 +59,7 @@
                     </div>
                     <div class="flex justify-end gap-3">
                         <button type="button" wire:click="$set('showRecollectModal', false)" class="rounded-lg border px-4 py-2 text-sm">Cancel</button>
-                        <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2 text-sm text-white hover:bg-blue-700">Save Recollection</button>
+                        <button type="submit" class="app-btn-primary rounded-lg px-5 py-2 text-sm">Save Recollection</button>
                     </div>
                 </form>
             </div>
