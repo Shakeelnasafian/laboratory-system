@@ -12,14 +12,18 @@ services:
     networks:
       - shared-network
 
+  # ---- PHP Application ----
   lab-php:
     build:
       context: .
-      dockerfile: docker/php/Dockerfile
+      dockerfile: Dockerfile
+    image: laboratory-system-lab-php:latest    # 👈 name the image
     volumes:
       - .:/var/www/html
     networks:
-      - shared-network
+      shared-network:
+        aliases:
+          - lab-php
     healthcheck:
       test: ["CMD", "php-fpm", "-t"]
       interval: 10s
@@ -27,20 +31,19 @@ services:
       retries: 3
       start_period: 30s
 
+  # ---- Queue Worker ----
   lab-horizon:
-    build:
-      context: .
-      dockerfile: docker/php/Dockerfile
+    image: laboratory-system-lab-php:latest    # 👈 reuse same image
     command: php artisan queue:listen --tries=3
     volumes:
       - .:/var/www/html
     networks:
       - shared-network
 
+  # ---- Scheduler ----
   lab-scheduler:
-    build:
-      context: .
-      dockerfile: docker/scheduler/Dockerfile
+    image: laboratory-system-lab-php:latest
+    command: sh -c "while true; do php artisan schedule:run; sleep 60; done"
     volumes:
       - .:/var/www/html
     networks:
