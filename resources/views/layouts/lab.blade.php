@@ -73,11 +73,10 @@
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <div class="hidden text-xs text-gray-500 sm:block sm:text-sm">{{ now()->format('D, d M Y') }}</div>
+                    <div class="text-xs text-gray-500 sm:text-sm">{{ now()->format('D, d M Y') }}</div>
                     <div class="flex items-center gap-3 border-l border-gray-200 pl-4">
-                        <div class="hidden text-right sm:block">
-                            <p class="text-sm font-medium text-gray-700">{{ auth()->user()->name }}</p>
-                            <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
+                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-900 text-sm font-semibold text-white" title="{{ auth()->user()->name }}">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                         </div>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
