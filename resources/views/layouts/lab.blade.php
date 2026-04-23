@@ -72,7 +72,19 @@
                     </div>
                 </div>
 
-                <div class="text-xs text-gray-500 sm:text-sm">{{ now()->format('D, d M Y') }}</div>
+                <div class="flex items-center gap-4">
+                    <div class="hidden text-xs text-gray-500 sm:block sm:text-sm">{{ now()->format('D, d M Y') }}</div>
+                    <div class="flex items-center gap-3 border-l border-gray-200 pl-4">
+                        <div class="hidden text-right sm:block">
+                            <p class="text-sm font-medium text-gray-700">{{ auth()->user()->name }}</p>
+                            <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
+                        </div>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-gray-600 transition hover:bg-gray-100 hover:text-gray-800">Logout</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </header>
 

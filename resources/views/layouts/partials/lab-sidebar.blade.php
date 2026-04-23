@@ -109,16 +109,4 @@
         @endrole
     </nav>
 
-    <div class="shrink-0 border-t border-blue-800 px-4 py-3">
-        <div class="flex items-center gap-3" :class="$store.labSidebar.mini && $store.labSidebar.isDesktop ? 'justify-center' : 'justify-between'">
-            <div class="min-w-0" x-show="!$store.labSidebar.mini || !$store.labSidebar.isDesktop" x-transition.opacity.duration.150ms>
-                <p class="truncate text-sm font-medium">{{ auth()->user()->name }}</p>
-                <p class="truncate text-xs text-blue-300">{{ auth()->user()->email }}</p>
-            </div>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button class="text-xs text-blue-300 transition hover:text-white" title="Logout">Logout</button>
-            </form>
-        </div>
-    </div>
 </aside>
